@@ -1,0 +1,9 @@
+{
+  "name": "@quizfold/mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "check": "bun --check src/index.ts"
+  }
+}

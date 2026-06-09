@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ESNext", "WebWorker"],
+    "tsBuildInfoFile": ".turbo/tsbuildinfo/worker.tsbuildinfo"
+  },
+  "files": ["src/index.worker.ts", "src/wasm-module.d.ts"]
+}

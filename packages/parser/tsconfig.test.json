@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ESNext", "DOM", "WebWorker"],
+    "tsBuildInfoFile": ".turbo/tsbuildinfo/test.tsbuildinfo",
+    "types": [
+      "node",
+      "vitest/globals",
+      "@cloudflare/vitest-pool-workers/types"
+    ]
+  },
+  "include": ["tests/**/*.ts", "tests/**/*.d.ts", "vitest.config.ts"]
+}

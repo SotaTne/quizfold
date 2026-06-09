@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ESNext"],
+    "tsBuildInfoFile": ".turbo/tsbuildinfo/node.tsbuildinfo",
+    "types": ["node"]
+  },
+  "files": ["src/index.node.ts"]
+}

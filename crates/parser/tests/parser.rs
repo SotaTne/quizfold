@@ -1,0 +1,268 @@
+use quizfold_parser::ast::{
+    BlockKind, DocumentItemKind, FoldBlankInlineKind, ImageReference, InlineKind, QuizItemKind,
+};
+use quizfold_parser::diagnostics::Severity;
+use quizfold_parser::errors::ParseError;
+use quizfold_parser::parse_quizfold;
+
+#[test]
+fn parses_qa_quiz() {
+    let result = parse_quizfold("? Capital of Japan?\n---\n${Tokyo}\n");
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Quiz(quiz) = &result.document.items[0].kind else {
+        panic!("expected quiz item");
+    };
+    assert!(matches!(quiz.kind, QuizItemKind::Qa(_)));
+}
+
+#[test]
+fn parses_fold_blank_as_ast_node() {
+    let result = parse_quizfold("! Japan's capital is ${Tokyo}.\n");
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Quiz(quiz) = &result.document.items[0].kind else {
+        panic!("expected quiz item");
+    };
+    let QuizItemKind::Fold(fold) = &quiz.kind else {
+        panic!("expected fold quiz");
+    };
+    let paragraph = match &fold.content.blocks[0].kind {
+        quizfold_parser::ast::BlockKind::Paragraph(paragraph) => paragraph,
+        _ => panic!("expected paragraph"),
+    };
+    let blank = paragraph
+        .inlines
+        .iter()
+        .find_map(|inline| match &inline.kind {
+            InlineKind::FoldBlank(blank) => Some(blank),
+            _ => None,
+        })
+        .expect("expected fold blank");
+
+    assert!(matches!(
+        blank.answer.inlines[0].kind,
+        FoldBlankInlineKind::Raw(_)
+    ));
+}
+
+#[test]
+fn reports_unclosed_fold_blank_as_error() {
+    let result = parse_quizfold("! Japan's capital is ${Tokyo.\n");
+
+    assert_diagnostic(&result, ParseError::UnclosedFoldBlank, "QF003", 21, 29);
+}
+
+#[test]
+fn reports_missing_answer_separator_as_error() {
+    let result = parse_quizfold("? Capital of Japan?\nTokyo\n");
+
+    assert_diagnostic(&result, ParseError::MissingAnswerSeparator, "QF001", 20, 25);
+}
+
+#[test]
+fn reports_fold_quiz_without_blank_as_error() {
+    let result = parse_quizfold("! Japan's capital is Tokyo.\n");
+
+    assert_diagnostic(&result, ParseError::FoldQuizWithoutBlank, "QF002", 0, 27);
+}
+
+#[test]
+fn reports_unclosed_inline_math_as_error() {
+    let result = parse_quizfold("Energy is $E = mc^2.\n");
+
+    assert_diagnostic(&result, ParseError::UnclosedMathInline, "QF004", 10, 20);
+}
+
+#[test]
+fn reports_unclosed_math_block_as_error() {
+    let result = parse_quizfold("$$\nE = mc^2\n");
+
+    assert_diagnostic(&result, ParseError::UnclosedBlock, "QF005", 0, 11);
+}
+
+#[test]
+fn reports_unclosed_code_block_as_error() {
+    let result = parse_quizfold("```rust\nfn main() {}\n");
+
+    assert_diagnostic(&result, ParseError::UnclosedBlock, "QF005", 0, 20);
+}
+
+#[test]
+fn parses_inline_math() {
+    let result = parse_quizfold("Energy is $E = mc^2$.\n");
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::Paragraph(paragraph) = &block.kind else {
+        panic!("expected paragraph");
+    };
+    assert!(paragraph
+        .inlines
+        .iter()
+        .any(|inline| matches!(inline.kind, InlineKind::MathInline(_))));
+}
+
+#[test]
+fn parses_math_block() {
+    let result = parse_quizfold("$$\nE = mc^2\n$$\n");
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    assert!(matches!(block.kind, BlockKind::MathBlock(_)));
+}
+
+#[test]
+fn parses_mermaid_and_mmd_fences() {
+    for language in ["mermaid", "mmd"] {
+        let source = format!("```{language}\nflowchart LR\nA --> B\n```\n");
+        let result = parse_quizfold(&source);
+
+        assert!(result.diagnostics.is_empty());
+        let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+            panic!("expected block");
+        };
+        assert!(matches!(block.kind, BlockKind::MermaidBlock(_)));
+    }
+}
+
+#[test]
+fn parses_code_fence_without_language() {
+    let result = parse_quizfold("```\nlet value = 1;\n```\n");
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::CodeBlock(code) = &block.kind else {
+        panic!("expected code block");
+    };
+    assert!(code.language.is_none());
+}
+
+#[test]
+fn parses_request_attachment_image() {
+    let result = parse_quizfold("![Cell](qf-attachment:cell)\n");
+
+    assert!(result.diagnostics.is_empty());
+    let image = first_image(&result);
+    assert_eq!(image.alt.value.as_ref(), "Cell");
+    let ImageReference::RequestAttachment(key) = &image.reference else {
+        panic!("expected request attachment");
+    };
+    assert_eq!(key.as_str(), "cell");
+    assert_eq!(result.references.request_attachments[0].as_str(), "cell");
+}
+
+#[test]
+fn parses_stored_image() {
+    let result = parse_quizfold("![Cell](qf-stored:img_123)\n");
+
+    assert!(result.diagnostics.is_empty());
+    let image = first_image(&result);
+    let ImageReference::StoredImage(id) = &image.reference else {
+        panic!("expected stored image");
+    };
+    assert_eq!(id.as_str(), "img_123");
+    assert_eq!(result.references.stored_images[0].as_str(), "img_123");
+}
+
+#[test]
+fn reports_empty_image_alt_as_error() {
+    let result = parse_quizfold("![](qf-attachment:cell)\n");
+
+    assert_diagnostic(&result, ParseError::EmptyImageAlt, "QF006", 2, 2);
+}
+
+#[test]
+fn rejects_external_image_reference() {
+    let source = "![Cell](ftp://example.com/cell.png)\n";
+    let result = parse_quizfold(source);
+    let diagnostic = result
+        .diagnostics
+        .iter()
+        .find(|diagnostic| diagnostic.error == ParseError::InvalidImageReference)
+        .expect("expected invalid image reference");
+
+    assert_eq!(diagnostic.code(), "QF007");
+    assert_eq!(
+        &source[diagnostic.source_range.start..diagnostic.source_range.end],
+        "ftp://example.com/cell.png"
+    );
+}
+
+#[test]
+fn parses_http_and_https_image_references() {
+    for url in [
+        "http://example.com/cell.png",
+        "https://example.com/cell.png",
+    ] {
+        let source = format!("![Cell]({url})\n");
+        let result = parse_quizfold(&source);
+
+        assert!(result.diagnostics.is_empty());
+        let image = first_image(&result);
+        let ImageReference::ExternalUrl(external_url) = &image.reference else {
+            panic!("expected external image URL");
+        };
+        assert_eq!(external_url.as_str(), url);
+        assert_eq!(result.references.external_images[0].as_str(), url);
+    }
+}
+
+#[test]
+fn rejects_empty_image_references() {
+    for source in [
+        "![Cell](qf-attachment:)\n",
+        "![Cell](qf-stored:)\n",
+        "![Cell](https://)\n",
+        "![Cell](http://)\n",
+    ] {
+        let result = parse_quizfold(source);
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.error == ParseError::InvalidImageReference));
+    }
+}
+
+fn first_image(result: &quizfold_parser::ParseResult) -> &quizfold_parser::ast::Image {
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::Paragraph(paragraph) = &block.kind else {
+        panic!("expected paragraph");
+    };
+    paragraph
+        .inlines
+        .iter()
+        .find_map(|inline| match &inline.kind {
+            InlineKind::Image(image) => Some(image),
+            _ => None,
+        })
+        .expect("expected image")
+}
+
+fn assert_diagnostic(
+    result: &quizfold_parser::ParseResult,
+    error: ParseError,
+    code: &str,
+    start: usize,
+    end: usize,
+) {
+    let diagnostic = result
+        .diagnostics
+        .iter()
+        .find(|diagnostic| diagnostic.error == error)
+        .unwrap_or_else(|| panic!("expected diagnostic {error:?}"));
+
+    assert_eq!(diagnostic.code(), code);
+    assert_eq!(diagnostic.severity(), Severity::Error);
+    assert_eq!(diagnostic.source_range.start, start);
+    assert_eq!(diagnostic.source_range.end, end);
+    assert!(!diagnostic.message().is_empty());
+}

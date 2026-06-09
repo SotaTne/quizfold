@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.script.json" },
+    { "path": "./tsconfig.bundler.json" },
+    { "path": "./tsconfig.browser.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.worker.json" },
+    { "path": "./tsconfig.test.json" }
+  ]
+}

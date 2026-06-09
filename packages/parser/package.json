@@ -1,0 +1,48 @@
+{
+  "name": "@quizfold/parser",
+  "version": "0.1.0",
+  "description": "QuizFold parser for browsers, Cloudflare Workers, bundlers, and Node.js",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quizfold/quizfold.git",
+    "directory": "packages/parser"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "workerd": "./dist/index.worker.js",
+      "browser": "./dist/index.browser.js",
+      "node": "./dist/index.node.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "check": "bun run build && bun run check:types",
+    "check:types": "tsc --build tsconfig.json --noEmit",
+    "pack:dry-run": "npm pack --dry-run",
+    "prepack": "bun run check",
+    "setup-chromium": "playwright install chromium",
+    "test": "bun run build && bun run setup-chromium && vitest run",
+    "test:browser": "bun run build && bun run setup-chromium && vitest run --project browser",
+    "test:node": "bun run build && vitest run --project node",
+    "test:worker": "bun run build && vitest run --project worker"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.14",
+    "@vitest/browser-playwright": "^4.1.8",
+    "playwright": "^1.60.0"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "quizfold-parser-tests",
+  "main": "../dist/index.worker.js",
+  "compatibility_date": "2026-06-09"
+}

@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "tsBuildInfoFile": ".turbo/tsbuildinfo/browser.tsbuildinfo"
+  },
+  "files": ["src/index.browser.ts"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@quizfold/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "quizfold": "./bin/quizfold.js"
+  },
+  "scripts": {
+    "check": "bun build ./bin/quizfold.js --outdir /tmp/quizfold-cli-check"
+  }
+}
