@@ -29,11 +29,12 @@
     }
   },
   "scripts": {
-    "build": "bun run scripts/build.ts",
+    "build:wasm": "cargo xtask build wasm",
+    "build:entries": "bun build src/index.ts src/index.browser.ts src/index.worker.ts src/index.node.ts --target bun --external ./wasm/* --outdir dist",
+    "build": "bun run build:wasm && bun run build:entries",
+    "check:types": "bunx tsc --build tsconfig.json --noEmit",
     "check": "bun run build && bun run check:types",
-    "check:types": "tsc --build tsconfig.json --noEmit",
     "pack:dry-run": "npm pack --dry-run",
-    "prepack": "bun run check",
     "setup-chromium": "playwright install chromium",
     "test": "bun run build && bun run setup-chromium && vitest run",
     "test:browser": "bun run build && bun run setup-chromium && vitest run --project browser",

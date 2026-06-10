@@ -9,6 +9,9 @@ rust-version.workspace = true
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [dependencies]
 quizfold-parser.workspace = true
 serde-wasm-bindgen.workspace = true
