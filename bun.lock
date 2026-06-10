@@ -18,6 +18,56 @@
       "bin": {
         "quizfold": "./bin/quizfold.js",
       },
+      "optionalDependencies": {
+        "@quizfold/cli-aarch64-apple-darwin": "0.1.0",
+        "@quizfold/cli-aarch64-pc-windows-msvc": "0.1.0",
+        "@quizfold/cli-aarch64-unknown-linux-gnu": "0.1.0",
+        "@quizfold/cli-x86_64-apple-darwin": "0.1.0",
+        "@quizfold/cli-x86_64-pc-windows-msvc": "0.1.0",
+        "@quizfold/cli-x86_64-unknown-linux-gnu": "0.1.0",
+      },
+    },
+    "packages/cli-aarch64-apple-darwin": {
+      "name": "@quizfold/cli-aarch64-apple-darwin",
+      "version": "0.1.0",
+      "bin": {
+        "quizfold": "./bin/quizfold.js",
+      },
+    },
+    "packages/cli-aarch64-pc-windows-msvc": {
+      "name": "@quizfold/cli-aarch64-pc-windows-msvc",
+      "version": "0.1.0",
+      "bin": {
+        "quizfold": "./bin/quizfold.js",
+      },
+    },
+    "packages/cli-aarch64-unknown-linux-gnu": {
+      "name": "@quizfold/cli-aarch64-unknown-linux-gnu",
+      "version": "0.1.0",
+      "bin": {
+        "quizfold": "./bin/quizfold.js",
+      },
+    },
+    "packages/cli-x86_64-apple-darwin": {
+      "name": "@quizfold/cli-x86_64-apple-darwin",
+      "version": "0.1.0",
+      "bin": {
+        "quizfold": "./bin/quizfold.js",
+      },
+    },
+    "packages/cli-x86_64-pc-windows-msvc": {
+      "name": "@quizfold/cli-x86_64-pc-windows-msvc",
+      "version": "0.1.0",
+      "bin": {
+        "quizfold": "./bin/quizfold.js",
+      },
+    },
+    "packages/cli-x86_64-unknown-linux-gnu": {
+      "name": "@quizfold/cli-x86_64-unknown-linux-gnu",
+      "version": "0.1.0",
+      "bin": {
+        "quizfold": "./bin/quizfold.js",
+      },
     },
     "packages/mcp": {
       "name": "@quizfold/mcp",
@@ -181,6 +231,18 @@
     "@poppinss/exception": ["@poppinss/exception@1.2.3", "", {}, "sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw=="],
 
     "@quizfold/cli": ["@quizfold/cli@workspace:packages/cli"],
+
+    "@quizfold/cli-aarch64-apple-darwin": ["@quizfold/cli-aarch64-apple-darwin@workspace:packages/cli-aarch64-apple-darwin"],
+
+    "@quizfold/cli-aarch64-pc-windows-msvc": ["@quizfold/cli-aarch64-pc-windows-msvc@workspace:packages/cli-aarch64-pc-windows-msvc"],
+
+    "@quizfold/cli-aarch64-unknown-linux-gnu": ["@quizfold/cli-aarch64-unknown-linux-gnu@workspace:packages/cli-aarch64-unknown-linux-gnu"],
+
+    "@quizfold/cli-x86_64-apple-darwin": ["@quizfold/cli-x86_64-apple-darwin@workspace:packages/cli-x86_64-apple-darwin"],
+
+    "@quizfold/cli-x86_64-pc-windows-msvc": ["@quizfold/cli-x86_64-pc-windows-msvc@workspace:packages/cli-x86_64-pc-windows-msvc"],
+
+    "@quizfold/cli-x86_64-unknown-linux-gnu": ["@quizfold/cli-x86_64-unknown-linux-gnu@workspace:packages/cli-x86_64-unknown-linux-gnu"],
 
     "@quizfold/mcp": ["@quizfold/mcp@workspace:packages/mcp"],
 

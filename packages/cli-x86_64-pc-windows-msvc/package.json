@@ -1,0 +1,20 @@
+{
+  "name": "@quizfold/cli-x86_64-pc-windows-msvc",
+  "version": "0.1.0",
+  "type": "module",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "bin": {
+    "quizfold": "./bin/quizfold.js"
+  },
+  "scripts": {
+    "build:cli": "cargo xtask build cli x86_64-pc-windows-msvc"
+  },
+  "files": [
+    "bin"
+  ]
+}

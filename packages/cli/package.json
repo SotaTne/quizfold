@@ -5,7 +5,16 @@
   "bin": {
     "quizfold": "./bin/quizfold.js"
   },
+  "optionalDependencies": {
+    "@quizfold/cli-aarch64-apple-darwin": "workspace:*",
+    "@quizfold/cli-aarch64-pc-windows-msvc": "workspace:*",
+    "@quizfold/cli-aarch64-unknown-linux-gnu": "workspace:*",
+    "@quizfold/cli-x86_64-apple-darwin": "workspace:*",
+    "@quizfold/cli-x86_64-pc-windows-msvc": "workspace:*",
+    "@quizfold/cli-x86_64-unknown-linux-gnu": "workspace:*"
+  },
   "scripts": {
-    "check": "bun build ./bin/quizfold.js --outdir /tmp/quizfold-cli-check"
+    "check": "node --check ./bin/quizfold.js",
+    "test": "bun run check && node ./bin/quizfold.js --help"
   }
 }

@@ -529,12 +529,12 @@ The npm CLI should use platform-specific packages:
 
 ```txt
 @quizfold/cli
-@quizfold/cli-darwin-arm64
-@quizfold/cli-darwin-x64
-@quizfold/cli-linux-arm64
-@quizfold/cli-linux-x64
-@quizfold/cli-win32-arm64
-@quizfold/cli-win32-x64
+@quizfold/cli-aarch64-apple-darwin
+@quizfold/cli-x86_64-apple-darwin
+@quizfold/cli-aarch64-unknown-linux-gnu
+@quizfold/cli-x86_64-unknown-linux-gnu
+@quizfold/cli-aarch64-pc-windows-msvc
+@quizfold/cli-x86_64-pc-windows-msvc
 ```
 
 32-bit and legacy PC support is intentionally out of scope.
