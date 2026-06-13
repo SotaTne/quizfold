@@ -610,6 +610,24 @@ ${徳川家康}
 
 Inline answers are used inside Q/A answers and Fold lines.
 
+### Memo block
+
+```md
+@memo
+This context is available while editing and through MCP, but is never shown in quiz mode.
+
+$$
+E = mc^2
+$$
+@end
+```
+
+Memo blocks begin with a line containing only `@memo` and end with a line containing only `@end`.
+
+Memo content may contain normal QuizFold blocks, including paragraphs, math, code, Mermaid, and images. Memo blocks cannot be nested. An unclosed memo, an unmatched `@end`, or a nested `@memo` is an error.
+
+Memo blocks may appear at the document level or inside Q/A question and answer content. They are retained in the AST for editors, CLI, MCP, and AI context, but quiz mode must always omit them.
+
 ### Math block
 
 ````md

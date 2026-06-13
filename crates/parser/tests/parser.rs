@@ -145,6 +145,170 @@ fn parses_code_fence_without_language() {
 }
 
 #[test]
+fn parses_memo_with_multiple_block_kinds() {
+    let source = "@memo\nRemember this equation.\n\n$$\nE = mc^2\n$$\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::Memo(memo) = &block.kind else {
+        panic!("expected memo block");
+    };
+
+    assert_eq!(memo.blocks.len(), 2);
+    assert!(matches!(memo.blocks[0].kind, BlockKind::Paragraph(_)));
+    assert!(matches!(memo.blocks[1].kind, BlockKind::MathBlock(_)));
+}
+
+#[test]
+fn starts_top_level_memo_without_requiring_a_blank_line() {
+    let source = "Remember the context.\n@memo\nHidden context.\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.document.items.len(), 2);
+    let DocumentItemKind::Block(block) = &result.document.items[1].kind else {
+        panic!("expected block");
+    };
+    assert!(matches!(block.kind, BlockKind::Memo(_)));
+}
+
+#[test]
+fn parses_memo_inside_qa_question() {
+    let source =
+        "? What is the energy equation?\n@memo\nUse mass and velocity.\n@end\n---\n$E = mc^2$\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Quiz(quiz) = &result.document.items[0].kind else {
+        panic!("expected quiz item");
+    };
+    let QuizItemKind::Qa(qa) = &quiz.kind else {
+        panic!("expected Q/A quiz");
+    };
+
+    assert_eq!(qa.question.blocks.len(), 2);
+    assert!(matches!(
+        qa.question.blocks[0].kind,
+        BlockKind::Paragraph(_)
+    ));
+    assert!(matches!(qa.question.blocks[1].kind, BlockKind::Memo(_)));
+}
+
+#[test]
+fn parses_memo_inside_qa_answer() {
+    let source = "? What is the energy equation?\n---\n$E = mc^2$\n@memo\nEquivalent forms are acceptable.\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Quiz(quiz) = &result.document.items[0].kind else {
+        panic!("expected quiz item");
+    };
+    let QuizItemKind::Qa(qa) = &quiz.kind else {
+        panic!("expected Q/A quiz");
+    };
+
+    assert_eq!(qa.answer.blocks.len(), 2);
+    assert!(matches!(qa.answer.blocks[1].kind, BlockKind::Memo(_)));
+}
+
+#[test]
+fn treats_memo_markers_inside_code_fences_as_code() {
+    let source = "@memo\n```text\n@memo\n@end\n```\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::Memo(memo) = &block.kind else {
+        panic!("expected memo block");
+    };
+    let BlockKind::CodeBlock(code) = &memo.blocks[0].kind else {
+        panic!("expected code block");
+    };
+    assert_eq!(code.source.as_ref(), "@memo\n@end");
+}
+
+#[test]
+fn treats_quiz_syntax_inside_memo_as_text() {
+    let source = "@memo\n? This is not a question quiz.\n! This is not a fold quiz.\n---\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.document.items.len(), 1);
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::Memo(memo) = &block.kind else {
+        panic!("expected memo block");
+    };
+    let BlockKind::Paragraph(paragraph) = &memo.blocks[0].kind else {
+        panic!("expected paragraph");
+    };
+    let text = paragraph
+        .inlines
+        .iter()
+        .filter_map(|inline| match &inline.kind {
+            InlineKind::Raw(raw) => Some(raw.value.as_ref()),
+            _ => None,
+        })
+        .collect::<String>();
+
+    assert!(text.contains("? This is not a question quiz."));
+    assert!(text.contains("! This is not a fold quiz."));
+    assert!(text.contains("---"));
+}
+#[test]
+fn reports_unclosed_memo_as_error() {
+    let source = "@memo\nRemember this.\n";
+    let result = parse_quizfold(source);
+
+    assert_diagnostic(&result, ParseError::UnclosedMemo, "QF008", 0, source.len());
+}
+
+#[test]
+fn reports_unexpected_memo_end_as_error() {
+    let source = "@end\n";
+    let result = parse_quizfold(source);
+
+    assert_diagnostic(&result, ParseError::UnexpectedMemoEnd, "QF009", 0, 4);
+}
+
+#[test]
+fn reports_nested_memo_as_error() {
+    let source = "@memo\nOuter.\n@memo\nInner.\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert_diagnostic(&result, ParseError::NestedMemo, "QF010", 13, 18);
+}
+
+#[test]
+fn reports_content_errors_inside_memo() {
+    let source = "@memo\nEnergy is $E = mc^2.\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.error == ParseError::UnclosedMathInline));
+}
+
+#[test]
+fn treats_non_exact_memo_markers_as_text() {
+    let source = "@memo note\n@end note\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    assert!(matches!(block.kind, BlockKind::Paragraph(_)));
+}
+
+#[test]
 fn parses_request_attachment_image() {
     let result = parse_quizfold("![Cell](qf-attachment:cell)\n");
 

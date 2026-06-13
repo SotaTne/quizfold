@@ -610,6 +610,24 @@ ${徳川家康}
 
 Inline answers は Q/A answers と Fold lines の中で使われます。
 
+### Memo block
+
+```md
+@memo
+この補足情報は編集画面やMCPでは利用できるが、クイズモードには表示しない。
+
+$$
+E = mc^2
+$$
+@end
+```
+
+Memo blockは、行全体が`@memo`の行で開始し、行全体が`@end`の行で終了します。
+
+Memo内には、paragraph、math、code、Mermaid、imageを含む通常のQuizFold blockを記述できます。Memoのネストは禁止します。閉じられていないmemo、対応する`@memo`がない`@end`、memo内の`@memo`はerrorです。
+
+Memo blockはdocument levelとQ/Aのquestion・answer content内に配置できます。Editor、CLI、MCP、AI contextのためにASTへ保持しますが、quiz modeでは必ず除外します。
+
 ### Math block
 
 ````md

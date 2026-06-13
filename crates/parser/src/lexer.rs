@@ -13,6 +13,8 @@ pub enum TokenKind {
     QuestionMarker,
     FoldMarker,
     AnswerSeparator,
+    MemoStart,
+    MemoEnd,
     MathBlockDelimiter,
     CodeFenceStart {
         info: Option<SourceRange>,
@@ -72,6 +74,18 @@ pub(crate) fn lex_with_offset(input: &str, offset: usize) -> Vec<Token> {
                 block_mode = None;
             }
             Some(_) => push(&mut tokens, TokenKind::Raw, cursor, content_end, offset),
+            None if line == "@memo" => {
+                push(
+                    &mut tokens,
+                    TokenKind::MemoStart,
+                    cursor,
+                    content_end,
+                    offset,
+                );
+            }
+            None if line == "@end" => {
+                push(&mut tokens, TokenKind::MemoEnd, cursor, content_end, offset);
+            }
             None if line == "$$" => {
                 push(
                     &mut tokens,

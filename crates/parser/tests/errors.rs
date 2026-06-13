@@ -13,6 +13,9 @@ fn parse_errors_have_unique_codes_and_messages() {
         ParseError::UnclosedBlock,
         ParseError::EmptyImageAlt,
         ParseError::InvalidImageReference,
+        ParseError::UnclosedMemo,
+        ParseError::UnexpectedMemoEnd,
+        ParseError::NestedMemo,
     ];
 
     let codes: BTreeSet<_> = errors.iter().map(|error| error.code()).collect();

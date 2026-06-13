@@ -81,3 +81,51 @@ fn lexes_markdown_image_ranges() {
         "![Cell](qf-attachment:cell)"
     );
 }
+
+#[test]
+fn lexes_memo_and_quiz_markers_without_interpreting_context() {
+    let tokens = lex("@memo\n? question\n! ${answer}\n---\n@end\n");
+    let kinds: Vec<_> = tokens.iter().map(|token| token.kind).collect();
+
+    assert_eq!(
+        kinds,
+        vec![
+            TokenKind::MemoStart,
+            TokenKind::Newline,
+            TokenKind::QuestionMarker,
+            TokenKind::Raw,
+            TokenKind::Newline,
+            TokenKind::FoldMarker,
+            TokenKind::FoldBlankStart,
+            TokenKind::Raw,
+            TokenKind::FoldBlankEnd,
+            TokenKind::Newline,
+            TokenKind::AnswerSeparator,
+            TokenKind::Newline,
+            TokenKind::MemoEnd,
+            TokenKind::Newline,
+        ]
+    );
+}
+
+#[test]
+fn lexes_nested_memo_start_for_parser_diagnostics() {
+    let tokens = lex("@memo\n@memo\n@end\n");
+
+    assert_eq!(
+        tokens
+            .iter()
+            .filter(|token| token.kind == TokenKind::MemoStart)
+            .count(),
+        2
+    );
+}
+
+#[test]
+fn treats_memo_markers_inside_code_fences_as_raw() {
+    let tokens = lex("```text\n@memo\n@end\n```\n");
+
+    assert!(!tokens
+        .iter()
+        .any(|token| matches!(token.kind, TokenKind::MemoStart | TokenKind::MemoEnd)));
+}

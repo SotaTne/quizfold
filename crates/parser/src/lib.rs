@@ -1,4 +1,5 @@
 pub mod ast;
+mod constants;
 pub mod diagnostics;
 pub mod errors;
 pub mod lexer;

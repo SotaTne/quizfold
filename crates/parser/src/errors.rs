@@ -9,6 +9,9 @@ pub enum ParseError {
     UnclosedBlock,
     EmptyImageAlt,
     InvalidImageReference,
+    UnclosedMemo,
+    UnexpectedMemoEnd,
+    NestedMemo,
 }
 
 impl ParseError {
@@ -21,6 +24,9 @@ impl ParseError {
             Self::UnclosedBlock => "QF005",
             Self::EmptyImageAlt => "QF006",
             Self::InvalidImageReference => "QF007",
+            Self::UnclosedMemo => "QF008",
+            Self::UnexpectedMemoEnd => "QF009",
+            Self::NestedMemo => "QF010",
         }
     }
 
@@ -35,6 +41,9 @@ impl ParseError {
             Self::InvalidImageReference => {
                 "Image reference must use `qf-attachment:`, `qf-stored:`, `http://`, or `https://`."
             }
+            Self::UnclosedMemo => "Memo block is not closed with `@end`.",
+            Self::UnexpectedMemoEnd => "`@end` does not have a matching `@memo`.",
+            Self::NestedMemo => "Memo blocks cannot be nested.",
         }
     }
 

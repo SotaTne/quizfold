@@ -63,9 +63,16 @@ pub struct Block {
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub enum BlockKind {
     Paragraph(Paragraph),
+    Memo(MemoBlock),
     MathBlock(MathBlock),
     CodeBlock(CodeBlock),
     MermaidBlock(MermaidBlock),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct MemoBlock {
+    pub blocks: Vec<Block>,
+    pub source_range: SourceRange,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
@@ -243,6 +250,15 @@ impl QuizContent {
 impl Block {
     pub fn new(kind: BlockKind, source_range: SourceRange) -> Self {
         Self { kind, source_range }
+    }
+}
+
+impl MemoBlock {
+    pub fn new(blocks: Vec<Block>, source_range: SourceRange) -> Self {
+        Self {
+            blocks,
+            source_range,
+        }
     }
 }
 
