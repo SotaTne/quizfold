@@ -2,12 +2,14 @@ pub mod ast;
 mod constants;
 pub mod diagnostics;
 pub mod errors;
+pub mod formatter;
 pub mod lexer;
 mod parse;
 pub mod source;
 
 use ast::{AttachmentKey, ExternalImageUrl, QuizFoldDocument, StoredImageId};
 use diagnostics::Diagnostic;
+pub use formatter::format_quizfold;
 
 #[derive(Debug, Clone, Default, serde::Serialize)]
 pub struct ParseStats {

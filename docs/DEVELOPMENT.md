@@ -177,8 +177,20 @@ pub fn parse_quizfold(input: &str) -> ParseResult;
 
 pub fn validate_quizfold(input: &str) -> Vec<Diagnostic>;
 
+pub fn format_quizfold(document: &QuizFoldDocument) -> String;
+
 pub fn extract_quiz_items(input: &str) -> ExtractResult;
 ```
+
+The formatter converts an AST into canonical QuizFold Markdown. It is the pure inverse boundary of the parser and must not perform storage, network, attachment, or image existence validation.
+
+Round-trip behavior is tested semantically:
+
+```txt
+Markdown -> AST -> canonical Markdown -> AST
+```
+
+The two ASTs must contain the same document structure and values. `SourceRange` values are excluded because formatting creates a new source layout.
 
 ### Parse result sketch
 
