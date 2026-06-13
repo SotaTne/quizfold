@@ -10,6 +10,8 @@ import type {
   ParseResult,
 } from "./wasm/browser/parser.js";
 
+export type { Diagnostic, ErrorCode, ParseResult } from "./wasm/browser/parser.js";
+
 initSync({ module: parserWasm });
 
 export async function parseQuizFold(input: string): Promise<ParseResult> {

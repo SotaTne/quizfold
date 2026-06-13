@@ -8,6 +8,8 @@ import type {
   ParseResult,
 } from "./wasm/browser/parser.js";
 
+export type { Diagnostic, ErrorCode, ParseResult } from "./wasm/browser/parser.js";
+
 let initialization: Promise<unknown> | undefined;
 
 function initialize(): Promise<unknown> {

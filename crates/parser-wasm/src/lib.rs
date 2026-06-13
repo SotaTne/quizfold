@@ -5,6 +5,18 @@ use wasm_bindgen::JsCast;
 const TYPESCRIPT_TYPES: &'static str = r#"
 export type Severity = "Fatal" | "Error" | "Warning";
 
+export type ErrorCode =
+  | "QF001"
+  | "QF002"
+  | "QF003"
+  | "QF004"
+  | "QF005"
+  | "QF006"
+  | "QF007"
+  | "QF008"
+  | "QF009"
+  | "QF010";
+
 export type ParseError =
   | "MissingAnswerSeparator"
   | "FoldQuizWithoutBlank"
@@ -12,7 +24,10 @@ export type ParseError =
   | "UnclosedMathInline"
   | "UnclosedBlock"
   | "EmptyImageAlt"
-  | "InvalidImageReference";
+  | "InvalidImageReference"
+  | "UnclosedMemo"
+  | "UnexpectedMemoEnd"
+  | "NestedMemo";
 
 export interface SourceRange {
   start: number;
@@ -22,7 +37,7 @@ export interface SourceRange {
 export interface Diagnostic {
   error: ParseError;
   severity: Severity;
-  code: string;
+  code: ErrorCode;
   message: string;
   source_range: SourceRange;
 }
@@ -90,12 +105,18 @@ export interface Block {
 
 export type BlockKind =
   | { Paragraph: Paragraph }
+  | { Memo: MemoBlock }
   | { MathBlock: MathBlock }
   | { CodeBlock: CodeBlock }
   | { MermaidBlock: MermaidBlock };
 
 export interface Paragraph {
   inlines: Inline[];
+  source_range: SourceRange;
+}
+
+export interface MemoBlock {
+  blocks: Block[];
   source_range: SourceRange;
 }
 

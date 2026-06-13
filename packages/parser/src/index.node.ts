@@ -5,6 +5,8 @@ import type {
   ParseResult,
 } from "./wasm/node/parser.js";
 
+export type { Diagnostic, ErrorCode, ParseResult } from "./wasm/node/parser.js";
+
 export async function parseQuizFold(input: string): Promise<ParseResult> {
   return nodeWasm.parseQuizFold(input);
 }
