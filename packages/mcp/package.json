@@ -4,6 +4,16 @@
   "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
-    "check": "bun --check src/index.ts"
+    "build": "bun build src/index.ts --outfile dist/index.js",
+    "check": "bunx tsc -p tsconfig.json --noEmit",
+    "check:test": "bunx tsc -p tsconfig.test.json --noEmit",
+    "test": "bunx tsc -p tsconfig.test.json --noEmit && bunx vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.15",
+    "@hono/mcp": "^0.3.0"
   }
 }
