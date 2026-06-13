@@ -190,6 +190,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "Diagnostic[]")]
     pub type JsDiagnostics;
+
+    #[wasm_bindgen(typescript_type = "QuizFoldDocument")]
+    pub type JsQuizFoldDocument;
 }
 
 #[wasm_bindgen(js_name = parseQuizFold)]
@@ -206,6 +209,17 @@ pub fn validate_quizfold(input: &str) -> Result<JsDiagnostics, JsValue> {
         .map_err(serialization_error)
 }
 
+#[wasm_bindgen(js_name = formatQuizFold)]
+pub fn format_quizfold(document: JsQuizFoldDocument) -> Result<String, JsValue> {
+    let document =
+        serde_wasm_bindgen::from_value(document.into()).map_err(deserialization_error)?;
+    Ok(quizfold_parser::format_quizfold(&document))
+}
+
 fn serialization_error(error: serde_wasm_bindgen::Error) -> JsValue {
+    JsValue::from_str(&error.to_string())
+}
+
+fn deserialization_error(error: serde_wasm_bindgen::Error) -> JsValue {
     JsValue::from_str(&error.to_string())
 }
