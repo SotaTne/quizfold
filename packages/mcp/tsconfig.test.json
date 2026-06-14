@@ -2,9 +2,15 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "lib": ["ESNext", "DOM"],
-    "types": ["node", "vitest/globals"]
+    "exactOptionalPropertyTypes": false,
+    "lib": ["ESNext", "DOM", "WebWorker"],
+    "types": [
+      "bun",
+      "node",
+      "vitest/globals"
+    ],
+    "tsBuildInfoFile": ".turbo/tsbuildinfo/test.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "src/**/*.test.ts", "tests/**/*.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "vite.config.ts"],
   "exclude": []
 }

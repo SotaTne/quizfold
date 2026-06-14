@@ -3,17 +3,22 @@
   "version": "0.1.0",
   "type": "module",
   "exports": "./src/index.ts",
+  "imports": {
+    "#mcp-test-server": "./tests/server.node.ts"
+  },
   "scripts": {
     "build": "bun build src/index.ts --outfile dist/index.js",
-    "check": "bunx tsc -p tsconfig.json --noEmit",
-    "check:test": "bunx tsc -p tsconfig.test.json --noEmit",
-    "test": "bunx tsc -p tsconfig.test.json --noEmit && bunx vitest run"
+    "build:test-worker": "bun build tests/worker.ts --outfile .tmp/mcp-worker.js --target browser",
+    "check": "bunx tsc -p tsconfig.json --noEmit && bunx tsc -p tsconfig.test.json --noEmit",
+    "test": "bun test ./src && bun run build:test-worker && vitest run --config vite.config.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@quizfold/parser": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.15",
-    "@hono/mcp": "^0.3.0"
+    "@hono/mcp": "^0.3.0",
+    "hono": "^4.12.25",
+    "miniflare": "^4.20260611.0"
   }
 }
