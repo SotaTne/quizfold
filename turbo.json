@@ -11,7 +11,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "bin/**", "!bin/**/*.js"]
     },
     "test": {
       "dependsOn": ["^test"],
