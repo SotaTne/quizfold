@@ -10,6 +10,7 @@
     "build:cli": "cargo xtask build cli all",
     "build:parser-wasm": "cargo xtask build wasm",
     "check": "turbo check",
+    "typecheck": "turbo typecheck",
     "test": "turbo test"
   },
   "devDependencies": {

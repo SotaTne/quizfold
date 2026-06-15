@@ -9,7 +9,7 @@
   "scripts": {
     "build": "bun build src/index.ts --outfile dist/index.js",
     "build:test-worker": "bun build tests/worker.ts --outfile .tmp/mcp-worker.js --target browser",
-    "check": "bunx tsc -p tsconfig.json --noEmit && bunx tsc -p tsconfig.test.json --noEmit",
+    "typecheck": "bunx tsc -p tsconfig.json --noEmit && bunx tsc -p tsconfig.test.json --noEmit",
     "test": "bun test ./src && bun run build:test-worker && vitest run --config vite.config.ts"
   },
   "dependencies": {
