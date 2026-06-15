@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "vitest";
+import packageJson from "../../package.json" with { type: "json" };
 
 import { connectMcpClient } from "#mcp-test-server";
 
@@ -18,6 +19,6 @@ afterEach(async () => {
 test("initializes the QuizFold MCP server", () => {
   expect(connection?.client.getServerVersion()).toEqual({
     name: "quizfold",
-    version: "0.1.0",
+    version: packageJson.version,
   });
 });
