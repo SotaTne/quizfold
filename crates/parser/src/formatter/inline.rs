@@ -1,3 +1,5 @@
+// Inline formatter for QuizFold AST nodes.
+// It serializes inline text, math, fold blanks, and image references.
 use super::Formatter;
 use crate::ast::{
     FoldBlankContent, FoldBlankInlineKind, Image, ImageReference, InlineKind, Paragraph,

@@ -1,3 +1,5 @@
+// Line-oriented lexer for QuizFold syntax.
+// It emits syntax tokens without interpreting higher-level parser context.
 use crate::source::SourceRange;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

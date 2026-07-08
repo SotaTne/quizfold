@@ -1,3 +1,5 @@
+// Thin process wrapper around wasm-pack.
+// It builds parser-wasm targets while leaving wasm-pack output intact.
 use std::{path::Path, process::Command};
 
 use anyhow::{bail, Context, Result};

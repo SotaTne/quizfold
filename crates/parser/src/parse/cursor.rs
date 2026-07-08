@@ -1,3 +1,5 @@
+// Line cursor utilities for block parsing.
+// This isolates token slicing and source ranges from grammar-specific code.
 use crate::lexer::{Token, TokenKind};
 use crate::source::SourceRange;
 

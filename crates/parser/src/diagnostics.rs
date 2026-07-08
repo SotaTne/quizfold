@@ -1,8 +1,12 @@
+// Structured parser diagnostics exposed to CLI, MCP, web, and wasm callers.
+// Diagnostics derive user-facing severity, code, and message from ParseError.
 use crate::errors::ParseError;
 use crate::source::SourceRange;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+#[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
 pub enum Severity {
     Fatal,
     Error,

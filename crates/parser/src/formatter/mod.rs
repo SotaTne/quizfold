@@ -1,3 +1,5 @@
+// Markdown formatter entry point for QuizFold AST.
+// It converts canonical AST back into stable QuizFold source text.
 mod block;
 mod inline;
 mod writer;

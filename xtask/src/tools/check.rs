@@ -1,3 +1,5 @@
+// Shared tool verification helper for xtask checks.
+// It prints compact ok/fail output with installation hints.
 use std::process::Command;
 
 pub struct ToolCheck<'a> {

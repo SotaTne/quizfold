@@ -9,12 +9,12 @@ describe("QuizFold blocks", () => {
 
     expect(result.diagnostics).toEqual([]);
     expect(result.document.items).toHaveLength(1);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Block: {
-        kind: {
-          MermaidBlock: {
-            source: "flowchart LR\nA --> B",
-          },
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Block",
+      value: {
+        kind: "MermaidBlock",
+        value: {
+          source: "flowchart LR\nA --> B",
         },
       },
     });
@@ -26,13 +26,13 @@ describe("QuizFold blocks", () => {
 
     expect(result.diagnostics).toEqual([]);
     expect(result.document.items).toHaveLength(1);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Block: {
-        kind: {
-          CodeBlock: {
-            language: "rust",
-            source: "fn main() {}",
-          },
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Block",
+      value: {
+        kind: "CodeBlock",
+        value: {
+          language: "rust",
+          source: "fn main() {}",
         },
       },
     });

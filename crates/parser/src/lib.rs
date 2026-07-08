@@ -1,3 +1,5 @@
+// Public entry point for the QuizFold parser crate.
+// It wires AST, diagnostics, parser, formatter, and parse result types together.
 pub mod ast;
 mod constants;
 pub mod diagnostics;

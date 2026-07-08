@@ -8,12 +8,12 @@ describe("QuizFold math", () => {
     const result = await parseQuizFold(source);
 
     expect(result.diagnostics).toEqual([]);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Block: {
-        kind: {
-          MathBlock: {
-            source: "E = mc^2",
-          },
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Block",
+      value: {
+        kind: "MathBlock",
+        value: {
+          source: "E = mc^2",
         },
       },
     });
@@ -24,34 +24,31 @@ describe("QuizFold math", () => {
     const result = await parseQuizFold(source);
 
     expect(result.diagnostics).toEqual([]);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Block: {
-        kind: {
-          Paragraph: {
-            inlines: [
-              {
-                kind: {
-                  Raw: {
-                    value: "Energy is ",
-                  },
-                },
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Block",
+      value: {
+        kind: "Paragraph",
+        value: {
+          inlines: [
+            {
+              kind: "Raw",
+              value: {
+                value: "Energy is ",
               },
-              {
-                kind: {
-                  MathInline: {
-                    source: "E = mc^2",
-                  },
-                },
+            },
+            {
+              kind: "MathInline",
+              value: {
+                source: "E = mc^2",
               },
-              {
-                kind: {
-                  Raw: {
-                    value: ".",
-                  },
-                },
+            },
+            {
+              kind: "Raw",
+              value: {
+                value: ".",
               },
-            ],
-          },
+            },
+          ],
         },
       },
     });

@@ -1,3 +1,5 @@
+// Environment validation commands for repository tooling.
+// These checks report missing external tools before build commands need them.
 use anyhow::Result;
 
 use crate::{cli::CheckCommand as Check, tools};
@@ -16,7 +18,7 @@ fn run_tool_checks() {
     ok &= tools::check::ToolCheck {
         command: "wasm-pack",
         args: &["--version"],
-        install_hint: "cargo install --locked wasm-pack",
+        install_hint: "cargo install --locked --force wasm-pack",
         display_name: "wasm-pack",
     }
     .verify();

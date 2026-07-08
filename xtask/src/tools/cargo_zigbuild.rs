@@ -1,3 +1,5 @@
+// Thin process wrapper around cargo-zigbuild.
+// It builds Unix-like CLI binaries for cross-platform npm packages.
 use std::{path::Path, process::Command};
 
 use anyhow::{bail, Context, Result};

@@ -1,3 +1,5 @@
+// Parser root and document-level dispatch.
+// It consumes lexer tokens, collects diagnostics, and builds ParseResult.
 mod block;
 mod cursor;
 mod inline;

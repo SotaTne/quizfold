@@ -9,3 +9,8 @@ rust-version.workspace = true
 [dependencies]
 serde.workspace = true
 thiserror.workspace = true
+tsify-next = { workspace = true, optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+
+[features]
+tsify = ["dep:tsify-next", "dep:wasm-bindgen"]

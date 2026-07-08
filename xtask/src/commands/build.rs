@@ -1,3 +1,5 @@
+// Build orchestration for generated packages and native binaries.
+// This module owns wasm packaging, CLI cross-builds, and staged outputs.
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -41,6 +43,7 @@ fn build_wasm() -> Result<()> {
             &output_dir,
             "parser",
         )?;
+        normalize_parser_types(&output_dir.join("parser.d.ts"))?;
         let gitignore = output_dir.join(".gitignore");
         if gitignore.exists() {
             fs::remove_file(gitignore).context("remove wasm-pack gitignore")?;
@@ -143,8 +146,8 @@ fn set_executable_if_unix(_path: &Path) -> Result<()> {
 }
 
 fn write_public_types(input: &Path, output: &Path) -> Result<()> {
-    let generated_types = fs::read_to_string(input).context("read generated parser types")?;
-    let public_types = generated_types
+    let parser_types = fs::read_to_string(input).context("read generated parser types")?;
+    let public_types = parser_types
         .replace(
             "export function parseQuizFold(input: string): ParseResult;",
             "export function parseQuizFold(input: string): Promise<ParseResult>;",
@@ -156,6 +159,70 @@ fn write_public_types(input: &Path, output: &Path) -> Result<()> {
 
     fs::write(output, public_types).context("write public parser types")?;
     Ok(())
+}
+
+fn normalize_parser_types(path: &Path) -> Result<()> {
+    let parser_types = fs::read_to_string(path)
+        .with_context(|| format!("read generated parser types from {}", path.display()))?;
+    let parser_types = replace_flattened_wrapper_type_aliases(parser_types);
+
+    fs::write(path, parser_types)
+        .with_context(|| format!("write normalized parser types to {}", path.display()))?;
+    Ok(())
+}
+
+fn replace_flattened_wrapper_type_aliases(parser_types: String) -> String {
+    let lines = parser_types.lines().collect::<Vec<_>>();
+    let mut output = String::with_capacity(parser_types.len());
+    let mut index = 0;
+
+    while index < lines.len() {
+        if let Some((name, kind)) = parse_extends_interface_header(lines[index]) {
+            output.push_str(&format!("export type {name} = {kind} & {{\n"));
+            index += 1;
+            let mut brace_depth = 1;
+
+            while index < lines.len() {
+                let line = lines[index];
+                output.push_str(line);
+                brace_depth += count_char(line, '{');
+                brace_depth -= count_char(line, '}');
+
+                if brace_depth == 0 {
+                    output.push(';');
+                    output.push('\n');
+                    index += 1;
+                    break;
+                }
+
+                output.push('\n');
+                index += 1;
+            }
+
+            continue;
+        }
+
+        output.push_str(lines[index]);
+        output.push('\n');
+        index += 1;
+    }
+
+    output
+}
+
+fn parse_extends_interface_header(line: &str) -> Option<(&str, &str)> {
+    let line = line.strip_prefix("export interface ")?;
+    let (name, rest) = line.split_once(" extends ")?;
+    let kind = rest.strip_suffix(" {")?;
+
+    Some((name, kind))
+}
+
+fn count_char(value: &str, needle: char) -> usize {
+    value
+        .chars()
+        .filter(|character| *character == needle)
+        .count()
 }
 
 fn workspace_root() -> PathBuf {

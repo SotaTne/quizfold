@@ -1,3 +1,5 @@
+// Small output writer used by the formatter.
+// It centralizes newline handling for canonical markdown generation.
 #[derive(Default)]
 pub(super) struct Writer {
     output: String,

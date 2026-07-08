@@ -1,3 +1,5 @@
+// Inline-level QuizFold grammar.
+// This file parses raw text, inline math, fold blanks, and image references.
 use super::Parser;
 use crate::ast::{
     AttachmentKey, Block, BlockKind, ExternalImageUrl, FoldBlank, FoldBlankContent,

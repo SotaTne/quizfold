@@ -1,3 +1,5 @@
+// Thin process wrapper around cargo-xwin.
+// It builds Windows CLI binaries from non-Windows hosts.
 use std::{path::Path, process::Command};
 
 use anyhow::{bail, Context, Result};

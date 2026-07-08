@@ -1,6 +1,10 @@
+// Parser error taxonomy and stable public error codes.
+// Add new variants carefully because these codes are part of the external API.
 use crate::diagnostics::Severity;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+#[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
 pub enum ParseError {
     MissingAnswerSeparator,
     FoldQuizWithoutBlank,

@@ -1,3 +1,5 @@
+// Block-level QuizFold grammar.
+// This file parses quizzes, memo blocks, math/code fences, and paragraphs.
 use super::{ContentContext, Parser};
 use crate::ast::{
     Block, BlockKind, CodeBlock, DocumentItem, DocumentItemKind, FoldQuiz, MathBlock, MemoBlock,

@@ -8,53 +8,48 @@ describe("QuizFold quizzes", () => {
     const result = await parseQuizFold(source);
 
     expect(result.diagnostics).toEqual([]);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Quiz: {
-        kind: {
-          Fold: {
-            content: {
-              blocks: [
-                {
-                  kind: {
-                    Paragraph: {
-                      inlines: [
-                        {
-                          kind: {
-                            Raw: {
-                              value: "Japan is ",
-                            },
-                          },
-                        },
-                        {
-                          kind: {
-                            FoldBlank: {
-                              answer: {
-                                inlines: [
-                                  {
-                                    kind: {
-                                      Raw: {
-                                        value: "Tokyo",
-                                      },
-                                    },
-                                  },
-                                ],
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Quiz",
+      value: {
+        kind: "Fold",
+        value: {
+          content: {
+            blocks: [
+              {
+                kind: "Paragraph",
+                value: {
+                  inlines: [
+                    {
+                      kind: "Raw",
+                      value: {
+                        value: "Japan is ",
+                      },
+                    },
+                    {
+                      kind: "FoldBlank",
+                      value: {
+                        answer: {
+                          inlines: [
+                            {
+                              kind: "Raw",
+                              value: {
+                                value: "Tokyo",
                               },
                             },
-                          },
+                          ],
                         },
-                        {
-                          kind: {
-                            Raw: {
-                              value: ".",
-                            },
-                          },
-                        },
-                      ],
+                      },
                     },
-                  },
+                    {
+                      kind: "Raw",
+                      value: {
+                        value: ".",
+                      },
+                    },
+                  ],
                 },
-              ],
-            },
+              },
+            ],
           },
         },
       },
@@ -66,48 +61,44 @@ describe("QuizFold quizzes", () => {
     const result = await parseQuizFold(source);
 
     expect(result.diagnostics).toEqual([]);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Quiz: {
-        kind: {
-          Qa: {
-            question: {
-              blocks: [
-                {
-                  kind: {
-                    Paragraph: {
-                      inlines: [
-                        {
-                          kind: {
-                            Raw: {
-                              value: "Capital of Japan?",
-                            },
-                          },
-                        },
-                      ],
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Quiz",
+      value: {
+        kind: "Qa",
+        value: {
+          question: {
+            blocks: [
+              {
+                kind: "Paragraph",
+                value: {
+                  inlines: [
+                    {
+                      kind: "Raw",
+                      value: {
+                        value: "Capital of Japan?",
+                      },
                     },
-                  },
+                  ],
                 },
-              ],
-            },
-            answer: {
-              blocks: [
-                {
-                  kind: {
-                    Paragraph: {
-                      inlines: [
-                        {
-                          kind: {
-                            Raw: {
-                              value: "Tokyo",
-                            },
-                          },
-                        },
-                      ],
+              },
+            ],
+          },
+          answer: {
+            blocks: [
+              {
+                kind: "Paragraph",
+                value: {
+                  inlines: [
+                    {
+                      kind: "Raw",
+                      value: {
+                        value: "Tokyo",
+                      },
                     },
-                  },
+                  ],
                 },
-              ],
-            },
+              },
+            ],
           },
         },
       },

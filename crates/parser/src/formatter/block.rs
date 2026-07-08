@@ -1,3 +1,5 @@
+// Block formatter for QuizFold AST nodes.
+// It serializes quizzes, memo blocks, math/code fences, and paragraphs.
 use super::Formatter;
 use crate::ast::{
     Block, BlockKind, DocumentItem, DocumentItemKind, FoldQuiz, QaQuiz, QuizContent, QuizItemKind,

@@ -1,3 +1,5 @@
+// CLI shape for repository automation tasks.
+// This file defines command names, arguments, and target enums for xtask.
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
 

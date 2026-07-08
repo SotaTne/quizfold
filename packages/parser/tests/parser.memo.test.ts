@@ -11,15 +11,15 @@ describe("QuizFold memo blocks", () => {
     const result = await parseQuizFold(source);
 
     expect(result.diagnostics).toEqual([]);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Block: {
-        kind: {
-          Memo: {
-            blocks: [
-              { kind: { Paragraph: expect.any(Object) } },
-              { kind: { MathBlock: { source: "E = mc^2" } } },
-            ],
-          },
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Block",
+      value: {
+        kind: "Memo",
+        value: {
+          blocks: [
+            { kind: "Paragraph", value: expect.any(Object) },
+            { kind: "MathBlock", value: { source: "E = mc^2" } },
+          ],
         },
       },
     });
@@ -43,11 +43,11 @@ describe("QuizFold memo blocks", () => {
 
     expect(result.diagnostics).toEqual([]);
     expect(result.document.items).toHaveLength(1);
-    expect(result.document.items[0]?.kind).toMatchObject({
-      Block: {
-        kind: {
-          Memo: expect.any(Object),
-        },
+    expect(result.document.items[0]).toMatchObject({
+      kind: "Block",
+      value: {
+        kind: "Memo",
+        value: expect.any(Object),
       },
     });
   });
