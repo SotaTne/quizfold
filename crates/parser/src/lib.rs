@@ -13,12 +13,16 @@ use ast::{AttachmentKey, ExternalImageUrl, QuizFoldDocument, StoredImageId};
 use diagnostics::Diagnostic;
 pub use formatter::format_quizfold;
 
-#[derive(Debug, Clone, Default, serde::Serialize)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+#[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
 pub struct ParseStats {
     pub byte_len: usize,
 }
 
-#[derive(Debug, Clone, Default, serde::Serialize)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+#[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
 pub struct References {
     pub request_attachments: Vec<AttachmentKey>,
     pub stored_images: Vec<StoredImageId>,

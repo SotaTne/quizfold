@@ -22,8 +22,8 @@ export type ErrorCode =
 pub struct ParseResult {
     pub document: quizfold_parser::ast::QuizFoldDocument,
     pub diagnostics: Vec<Diagnostic>,
-    pub references: References,
-    pub stats: ParseStats,
+    pub references: quizfold_parser::References,
+    pub stats: quizfold_parser::ParseStats,
 }
 
 #[derive(serde::Serialize, tsify_next::Tsify)]
@@ -37,27 +37,13 @@ pub struct Diagnostic {
     pub source_range: quizfold_parser::source::SourceRange,
 }
 
-#[derive(serde::Serialize, tsify_next::Tsify)]
-#[tsify(into_wasm_abi)]
-pub struct ParseStats {
-    pub byte_len: usize,
-}
-
-#[derive(serde::Serialize, tsify_next::Tsify)]
-#[tsify(into_wasm_abi)]
-pub struct References {
-    pub request_attachments: Vec<quizfold_parser::ast::AttachmentKey>,
-    pub stored_images: Vec<quizfold_parser::ast::StoredImageId>,
-    pub external_images: Vec<quizfold_parser::ast::ExternalImageUrl>,
-}
-
 impl From<quizfold_parser::ParseResult> for ParseResult {
     fn from(value: quizfold_parser::ParseResult) -> Self {
         Self {
             document: value.document,
             diagnostics: value.diagnostics.iter().map(Diagnostic::from).collect(),
-            references: References::from(value.references),
-            stats: ParseStats::from(value.stats),
+            references: value.references,
+            stats: value.stats,
         }
     }
 }
@@ -70,24 +56,6 @@ impl From<&quizfold_parser::diagnostics::Diagnostic> for Diagnostic {
             code: value.code().into(),
             message: value.message().into(),
             source_range: value.source_range,
-        }
-    }
-}
-
-impl From<quizfold_parser::References> for References {
-    fn from(value: quizfold_parser::References) -> Self {
-        Self {
-            request_attachments: value.request_attachments,
-            stored_images: value.stored_images,
-            external_images: value.external_images,
-        }
-    }
-}
-
-impl From<quizfold_parser::ParseStats> for ParseStats {
-    fn from(value: quizfold_parser::ParseStats) -> Self {
-        Self {
-            byte_len: value.byte_len,
         }
     }
 }
