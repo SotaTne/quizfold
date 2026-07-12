@@ -98,7 +98,7 @@ impl Parser<'_> {
     }
 
     fn complete_qa(
-        &self,
+        &mut self,
         question: QuestionSection,
         separator: super::cursor::LexedLine,
         answer_start: usize,
@@ -112,11 +112,30 @@ impl Parser<'_> {
             SourceRange::new(question.content_start, separator.content_range.start),
         );
         let answer = QuizContent::new(answer_blocks, SourceRange::new(answer_start, end));
+
+        // answerが@memoブロックだけで構成されるのを許さない。memoは補足的な
+        // 私的注釈であり、「答えが実質空でmemoしか無い」状態を防ぐ
+        // (FoldQuizWithoutBlankと同じ考え方)。question側にこのチェックが無いのは
+        // 構造上不要なため: マーカー行(`?`の後の文字列)は必ず実質のある通常の
+        // 段落としてquestion.blocksの先頭に入る(`?`単体はマーカーとして認識
+        // されずQa自体が成立しない)ので、questionがmemoだけになることは無い。
+        if is_memo_only(&answer) {
+            self.diagnostics.push(Diagnostic::new(
+                ParseError::QaSectionIsMemoOnly,
+                answer.source_range,
+            ));
+        }
+
         qa_item(content, answer, question.quiz_start, end)
     }
 
-    /// FoldQuiz <- FOLD_MARKER Inline* FoldBlank Inline*
+    /// FoldQuiz <- FOLD_MARKER (Inline | FoldBlank)* FoldBlank (Inline | FoldBlank)*
     /// FoldQuiz -> DocumentItemKind::Quiz(QuizItemKind::Fold)
+    ///
+    /// 1項目内に `${...}` は1個以上、何個でも現れてよい(複数穴の穴埋め)。
+    /// 出現順が各`FoldBlank`のposition_in_itemになる(cloud側の学習履歴が
+    /// 穴ごとに独立して正誤を記録する単位)。0個(穴なし)だけがエラー
+    /// (下の`contains_fold_blank`チェック)。
     pub(super) fn parse_fold(&mut self) -> DocumentItem {
         let line = self.current_line();
         let marker = self.tokens[line.token_start];
@@ -419,4 +438,15 @@ fn contains_fold_blank(content: &QuizContent) -> bool {
             .any(|inline| matches!(inline.kind, crate::ast::InlineKind::FoldBlank(_))),
         _ => false,
     })
+}
+
+/// blocksが1つ以上あり、かつ全部がMemoブロックである場合にtrue。
+/// (blocksが空の場合はfalse — それは「memoしか無い」ではなく「中身が無い」で、
+/// 既存のMissingAnswerSeparator等、別のチェックが担当する領域のため)
+fn is_memo_only(content: &QuizContent) -> bool {
+    !content.blocks.is_empty()
+        && content
+            .blocks
+            .iter()
+            .all(|block| matches!(block.kind, BlockKind::Memo(_)))
 }

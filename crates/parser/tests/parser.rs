@@ -47,6 +47,44 @@ fn parses_fold_blank_as_ast_node() {
 }
 
 #[test]
+fn parses_multiple_fold_blanks_in_one_item_in_order() {
+    let result = parse_quizfold("! The capital of ${France} is ${Paris}.\n");
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Quiz(quiz) = &result.document.items[0].kind else {
+        panic!("expected quiz item");
+    };
+    let QuizItemKind::Fold(fold) = &quiz.kind else {
+        panic!("expected fold quiz");
+    };
+    let paragraph = match &fold.content.blocks[0].kind {
+        BlockKind::Paragraph(paragraph) => paragraph,
+        _ => panic!("expected paragraph"),
+    };
+    let blanks: Vec<_> = paragraph
+        .inlines
+        .iter()
+        .filter_map(|inline| match &inline.kind {
+            InlineKind::FoldBlank(blank) => Some(blank),
+            _ => None,
+        })
+        .collect();
+
+    assert_eq!(blanks.len(), 2, "expected two independent fold blanks");
+    // 出現順が保たれ、それぞれ独立したFoldBlankノードであること
+    // (cloud側ではこの順序がposition_in_itemになり、穴ごとに独立して採点される)
+    assert_eq!(fold_blank_raw_text(blanks[0]), "France");
+    assert_eq!(fold_blank_raw_text(blanks[1]), "Paris");
+}
+
+fn fold_blank_raw_text(blank: &quizfold_parser::ast::FoldBlank) -> &str {
+    match &blank.answer.inlines[0].kind {
+        FoldBlankInlineKind::Raw(raw) => raw.value.as_ref(),
+        _ => panic!("expected raw fold blank answer"),
+    }
+}
+
+#[test]
 fn reports_unclosed_fold_blank_as_error() {
     let result = parse_quizfold("! Japan's capital is ${Tokyo.\n");
 
@@ -58,6 +96,23 @@ fn reports_missing_answer_separator_as_error() {
     let result = parse_quizfold("? Capital of Japan?\nTokyo\n");
 
     assert_diagnostic(&result, ParseError::MissingAnswerSeparator, "QF001", 20, 25);
+}
+
+#[test]
+fn reports_qa_answer_that_is_memo_only_as_error() {
+    let result = parse_quizfold("? Question\n---\n@memo\nhint\n@end\n");
+
+    assert_diagnostic(&result, ParseError::QaSectionIsMemoOnly, "QF011", 15, 31);
+}
+
+#[test]
+fn does_not_report_qa_question_that_is_memo_only_because_it_cannot_happen() {
+    // マーカー行("? Question")は必ず実質のある段落としてquestion.blocksの
+    // 先頭に入るため、questionがmemoだけになることは構造上あり得ない。
+    // memoが続いても(Paragraph, Memo)の2ブロックになるだけで、all-memoにはならない。
+    let result = parse_quizfold("? Question\n@memo\nhint\n@end\n---\nAnswer\n");
+
+    assert!(result.diagnostics.is_empty());
 }
 
 #[test]
