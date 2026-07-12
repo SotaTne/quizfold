@@ -1,17 +1,17 @@
 // Public entry point for the QuizFold parser crate.
-// It wires AST, diagnostics, parser, formatter, and parse result types together.
+// It wires AST, diagnostics, parser, printer, and parse result types together.
 pub mod ast;
 mod constants;
 pub mod diagnostics;
 pub mod errors;
-pub mod formatter;
 pub mod lexer;
 mod parse;
+pub mod printer;
 pub mod source;
 
 use ast::{AttachmentKey, ExternalImageUrl, QuizFoldDocument, StoredImageId};
 use diagnostics::Diagnostic;
-pub use formatter::format_quizfold;
+pub use printer::print_quizfold;
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]

@@ -1,24 +1,24 @@
-// Block formatter for QuizFold AST nodes.
+// Block printer for QuizFold AST nodes.
 // It serializes quizzes, memo blocks, math/code fences, and paragraphs.
-use super::Formatter;
+use super::Printer;
 use crate::ast::{
     Block, BlockKind, DocumentItem, DocumentItemKind, FoldQuiz, QaQuiz, QuizContent, QuizItemKind,
 };
 
-impl Formatter {
-    pub(super) fn format_document_item(&mut self, item: &DocumentItem) {
+impl Printer {
+    pub(super) fn print_document_item(&mut self, item: &DocumentItem) {
         match &item.kind {
             DocumentItemKind::Quiz(quiz) => match &quiz.kind {
-                QuizItemKind::Qa(qa) => self.format_qa(qa),
-                QuizItemKind::Fold(fold) => self.format_fold(fold),
+                QuizItemKind::Qa(qa) => self.print_qa(qa),
+                QuizItemKind::Fold(fold) => self.print_fold(fold),
             },
-            DocumentItemKind::Block(block) => self.format_block(block),
+            DocumentItemKind::Block(block) => self.print_block(block),
         }
     }
 
-    fn format_qa(&mut self, quiz: &QaQuiz) {
+    fn print_qa(&mut self, quiz: &QaQuiz) {
         self.writer.push("? ");
-        let question_rest = self.format_leading_paragraph(&quiz.question);
+        let question_rest = self.print_leading_paragraph(&quiz.question);
         self.writer.newline();
         if question_rest
             .first()
@@ -26,46 +26,46 @@ impl Formatter {
         {
             self.writer.blank_line();
         }
-        self.format_blocks(question_rest, true);
+        self.print_blocks(question_rest, true);
         self.writer.push("---");
         self.writer.newline();
-        self.format_blocks(&quiz.answer.blocks, false);
+        self.print_blocks(&quiz.answer.blocks, false);
     }
 
-    fn format_fold(&mut self, quiz: &FoldQuiz) {
+    fn print_fold(&mut self, quiz: &FoldQuiz) {
         self.writer.push("! ");
         if let Some(Block {
             kind: BlockKind::Paragraph(paragraph),
             ..
         }) = quiz.content.blocks.first()
         {
-            self.format_paragraph(paragraph);
+            self.print_paragraph(paragraph);
         }
         self.writer.newline();
     }
 
-    fn format_leading_paragraph<'a>(&mut self, content: &'a QuizContent) -> &'a [Block] {
+    fn print_leading_paragraph<'a>(&mut self, content: &'a QuizContent) -> &'a [Block] {
         let Some((first, rest)) = content.blocks.split_first() else {
             return &[];
         };
         if let BlockKind::Paragraph(paragraph) = &first.kind {
-            self.format_paragraph(paragraph);
+            self.print_paragraph(paragraph);
             rest
         } else {
             &content.blocks
         }
     }
 
-    pub(super) fn format_block(&mut self, block: &Block) {
+    pub(super) fn print_block(&mut self, block: &Block) {
         match &block.kind {
             BlockKind::Paragraph(paragraph) => {
-                self.format_paragraph(paragraph);
+                self.print_paragraph(paragraph);
                 self.writer.newline();
             }
             BlockKind::Memo(memo) => {
                 self.writer.push("@memo");
                 self.writer.newline();
-                self.format_blocks(&memo.blocks, true);
+                self.print_blocks(&memo.blocks, true);
                 self.writer.push("@end");
                 self.writer.newline();
             }
@@ -99,12 +99,12 @@ impl Formatter {
         }
     }
 
-    fn format_blocks(&mut self, blocks: &[Block], separated: bool) {
+    fn print_blocks(&mut self, blocks: &[Block], separated: bool) {
         for (index, block) in blocks.iter().enumerate() {
             if separated && index > 0 {
                 self.writer.blank_line();
             }
-            self.format_block(block);
+            self.print_block(block);
         }
     }
 }

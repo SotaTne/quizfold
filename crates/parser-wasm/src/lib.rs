@@ -37,11 +37,11 @@ pub fn validate_quizfold(input: &str) -> Result<JsDiagnostics, JsValue> {
         .map_err(serialization_error)
 }
 
-#[wasm_bindgen(js_name = formatQuizFold)]
-pub fn format_quizfold(document: JsQuizFoldDocument) -> Result<String, JsValue> {
+#[wasm_bindgen(js_name = printQuizFold)]
+pub fn print_quizfold(document: JsQuizFoldDocument) -> Result<String, JsValue> {
     let document =
         serde_wasm_bindgen::from_value(document.into()).map_err(deserialization_error)?;
-    Ok(quizfold_parser::format_quizfold(&document))
+    Ok(quizfold_parser::print_quizfold(&document))
 }
 
 fn serialize_to_js<T>(value: &T) -> Result<JsValue, serde_wasm_bindgen::Error>

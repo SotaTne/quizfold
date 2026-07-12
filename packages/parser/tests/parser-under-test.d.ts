@@ -7,7 +7,7 @@ declare module "#parser-under-test" {
   export function validateQuizFold(
     input: string,
   ): Promise<import("../src/index").Diagnostic[]>;
-  export function formatQuizFold(
+  export function printQuizFold(
     document: QuizFoldDocument,
   ): Promise<string>;
 }

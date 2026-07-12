@@ -1,4 +1,4 @@
-// Small output writer used by the formatter.
+// Small output writer used by the printer.
 // It centralizes newline handling for canonical markdown generation.
 #[derive(Default)]
 pub(super) struct Writer {

@@ -3,10 +3,10 @@ use quizfold_parser::ast::{
     FoldBlankInlineKind, ImageReference, Inline, InlineKind, QuizContent, QuizFoldDocument,
     QuizItemKind,
 };
-use quizfold_parser::{format_quizfold, parse_quizfold};
+use quizfold_parser::{parse_quizfold, print_quizfold};
 
 #[test]
-fn formats_quizfold_as_canonical_markdown() {
+fn prints_quizfold_as_canonical_markdown() {
     let source = concat!(
         "? Energy equation?\n",
         "@memo\n",
@@ -34,10 +34,10 @@ fn formats_quizfold_as_canonical_markdown() {
     let parsed = parse_quizfold(source);
     assert!(parsed.diagnostics.is_empty());
 
-    let formatted = format_quizfold(&parsed.document);
+    let printed = print_quizfold(&parsed.document);
 
     assert_eq!(
-        formatted,
+        printed,
         concat!(
             "? Energy equation?\n",
             "@memo\n",
@@ -74,6 +74,10 @@ fn preserves_semantic_ast_through_round_trip() {
         (
             "fold blank, math, and external image",
             "! Formula: ${value $x$} and ![External](https://example.com/a.png).\n",
+        ),
+        (
+            "multiple fold blanks in one item",
+            "! The capital of ${France} is ${Paris}, not ${Berlin}.\n",
         ),
         (
             "memo with code and display math",
@@ -113,19 +117,19 @@ fn assert_round_trip(name: &str, source: &str) {
         first.diagnostics
     );
 
-    let formatted = format_quizfold(&first.document);
-    let second = parse_quizfold(&formatted);
+    let printed = print_quizfold(&first.document);
+    let second = parse_quizfold(&printed);
     assert!(
         second.diagnostics.is_empty(),
-        "{name}: formatted diagnostics: {:?}\n{formatted}",
+        "{name}: printed diagnostics: {:?}\n{printed}",
         second.diagnostics
     );
 
     assert_document_eq(&first.document, &second.document);
     assert_eq!(
-        formatted,
-        format_quizfold(&second.document),
-        "{name}: formatter is not idempotent"
+        printed,
+        print_quizfold(&second.document),
+        "{name}: printer is not idempotent"
     );
 }
 

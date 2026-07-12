@@ -1,4 +1,4 @@
-// Markdown formatter entry point for QuizFold AST.
+// Markdown printer entry point for QuizFold AST.
 // It converts canonical AST back into stable QuizFold source text.
 mod block;
 mod inline;
@@ -7,27 +7,27 @@ mod writer;
 use self::writer::Writer;
 use crate::ast::QuizFoldDocument;
 
-pub fn format_quizfold(document: &QuizFoldDocument) -> String {
-    Formatter::new().format(document)
+pub fn print_quizfold(document: &QuizFoldDocument) -> String {
+    Printer::new().print(document)
 }
 
-struct Formatter {
+struct Printer {
     writer: Writer,
 }
 
-impl Formatter {
+impl Printer {
     fn new() -> Self {
         Self {
             writer: Writer::default(),
         }
     }
 
-    fn format(mut self, document: &QuizFoldDocument) -> String {
+    fn print(mut self, document: &QuizFoldDocument) -> String {
         for (index, item) in document.items.iter().enumerate() {
             if index > 0 {
                 self.writer.blank_line();
             }
-            self.format_document_item(item);
+            self.print_document_item(item);
         }
         self.writer.finish()
     }
