@@ -141,8 +141,8 @@ fn inlines_from_ast(
     inlines
         .iter()
         .map(|inline| match &inline.kind {
-            ast::InlineKind::Raw(value) => Ok(Inline::Raw(value.clone())),
-            ast::InlineKind::MathInline(value) => Ok(Inline::MathInline(value.clone())),
+            ast::InlineKind::Raw(value) => Ok(Inline::Raw(value.value.clone())),
+            ast::InlineKind::MathInline(value) => Ok(Inline::MathInline(value.source.clone())),
             ast::InlineKind::Image(value) => Ok(Inline::Image(value.clone())),
             ast::InlineKind::SoftBreak => Ok(Inline::SoftBreak),
             ast::InlineKind::FoldBlank(value) => match policy {
@@ -166,10 +166,10 @@ fn inlines_from_ast(
                             .iter()
                             .map(|inline| match &inline.kind {
                                 ast::FoldBlankInlineKind::Raw(value) => {
-                                    BlankInline::Raw(value.clone())
+                                    BlankInline::Raw(value.value.clone())
                                 }
                                 ast::FoldBlankInlineKind::MathInline(value) => {
-                                    BlankInline::MathInline(value.clone())
+                                    BlankInline::MathInline(value.source.clone())
                                 }
                             })
                             .collect(),
@@ -335,8 +335,12 @@ fn restore_inlines_with_cursor(
         .iter()
         .map(|inline| {
             let kind = match inline {
-                Inline::Raw(value) => ast::InlineKind::Raw(value.clone()),
-                Inline::MathInline(value) => ast::InlineKind::MathInline(value.clone()),
+                Inline::Raw(value) => ast::InlineKind::Raw(ast::Raw {
+                    value: value.clone(),
+                }),
+                Inline::MathInline(value) => ast::InlineKind::MathInline(ast::MathInline {
+                    source: value.clone(),
+                }),
                 Inline::Image(value) => ast::InlineKind::Image(value.clone()),
                 Inline::SoftBreak => ast::InlineKind::SoftBreak,
                 Inline::Blank(index) => {
@@ -371,11 +375,15 @@ fn restore_inlines_with_cursor(
                                 .iter()
                                 .map(|inline| match inline {
                                     BlankInline::Raw(value) => ast::FoldBlankInline::new(
-                                        ast::FoldBlankInlineKind::Raw(value.clone()),
+                                        ast::FoldBlankInlineKind::Raw(ast::Raw {
+                                            value: value.clone(),
+                                        }),
                                         EMPTY_RANGE,
                                     ),
                                     BlankInline::MathInline(value) => ast::FoldBlankInline::new(
-                                        ast::FoldBlankInlineKind::MathInline(value.clone()),
+                                        ast::FoldBlankInlineKind::MathInline(ast::MathInline {
+                                            source: value.clone(),
+                                        }),
                                         EMPTY_RANGE,
                                     ),
                                 })

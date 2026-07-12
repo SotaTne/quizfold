@@ -88,9 +88,7 @@ fn preserves_document_meaning_through_model_round_trip() {
 #[test]
 fn rejects_out_of_order_and_unused_blank_references() {
     let blank = model::Blank {
-        answer: vec![model::BlankInline::Raw(quizfold_parser::ast::Raw {
-            value: "answer".into(),
-        })],
+        answer: vec![model::BlankInline::Raw("answer".into())],
     };
     let out_of_order = model::Document {
         items: vec![model::Item::Fold(model::Fold {
@@ -131,7 +129,7 @@ fn blank_text(blank: &model::Blank) -> &str {
     let model::BlankInline::Raw(raw) = &blank.answer[0] else {
         panic!("expected raw blank answer");
     };
-    &raw.value
+    raw
 }
 
 fn assert_model_round_trip(source: &str) {

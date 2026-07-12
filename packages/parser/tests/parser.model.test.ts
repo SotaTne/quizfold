@@ -20,6 +20,15 @@ describe("document model", () => {
       throw new Error("expected QaFold model item");
     }
     expect(model.items[0].value.blanks).toHaveLength(2);
+    expect(model.items[0].value.blanks[0]).toEqual({
+      answer: [{ kind: "Raw", value: "Tokyo" }],
+    });
+    expect(model.items[0].value.question.blocks[0]).toMatchObject({
+      kind: "Paragraph",
+      value: {
+        inlines: [{ kind: "Raw", value: "Capital of Japan?" }],
+      },
+    });
 
     const restored = await documentModelToAst(model);
     expect(await printQuizFold(restored)).toBe(
@@ -36,7 +45,7 @@ describe("document model", () => {
             content: [{ kind: "Blank", value: 1 }],
             blanks: [
               {
-                answer: [{ kind: "Raw", value: { value: "Tokyo" } }],
+                answer: [{ kind: "Raw", value: "Tokyo" }],
               },
             ],
           },

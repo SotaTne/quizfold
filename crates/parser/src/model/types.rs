@@ -1,6 +1,6 @@
 // Source-independent QuizFold document model.
 // It removes source ranges and replaces inline answers with stable local indices.
-use crate::ast::{CodeBlock, Image, MathBlock, MathInline, MermaidBlock, Raw};
+use crate::ast::{CodeBlock, Image, MathBlock, MermaidBlock};
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
@@ -123,8 +123,8 @@ pub struct Memo {
 )]
 #[serde(tag = "kind", content = "value")]
 pub enum Inline {
-    Raw(#[cfg_attr(feature = "tsify", tsify(type = "Raw"))] Raw),
-    MathInline(#[cfg_attr(feature = "tsify", tsify(type = "MathInline"))] MathInline),
+    Raw(Box<str>),
+    MathInline(Box<str>),
     Image(#[cfg_attr(feature = "tsify", tsify(type = "Image"))] Image),
     SoftBreak,
     Blank(u32),
@@ -148,6 +148,6 @@ pub struct Blank {
 )]
 #[serde(tag = "kind", content = "value")]
 pub enum BlankInline {
-    Raw(#[cfg_attr(feature = "tsify", tsify(type = "Raw"))] Raw),
-    MathInline(#[cfg_attr(feature = "tsify", tsify(type = "MathInline"))] MathInline),
+    Raw(Box<str>),
+    MathInline(Box<str>),
 }
