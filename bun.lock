@@ -12,6 +12,10 @@
         "vitest": "^4.1.8",
       },
     },
+    "crates/parser-wasm": {
+      "name": "@quizfold/parser-wasm",
+      "version": "0.1.0",
+    },
     "packages/cli": {
       "name": "@quizfold/cli",
       "version": "0.1.0",
@@ -85,6 +89,9 @@
     "packages/parser": {
       "name": "@quizfold/parser",
       "version": "0.1.0",
+      "dependencies": {
+        "@quizfold/parser-wasm": "workspace:*",
+      },
       "devDependencies": {
         "@cloudflare/vitest-pool-workers": "^0.16.14",
         "@vitest/browser-playwright": "^4.1.8",
@@ -262,6 +269,8 @@
     "@quizfold/mcp": ["@quizfold/mcp@workspace:packages/mcp"],
 
     "@quizfold/parser": ["@quizfold/parser@workspace:packages/parser"],
+
+    "@quizfold/parser-wasm": ["@quizfold/parser-wasm@workspace:crates/parser-wasm"],
 
     "@rolldown/binding-android-arm64": ["@rolldown/binding-android-arm64@1.0.3", "", { "os": "android", "cpu": "arm64" }, "sha512-454rs7jHngixp/NMxd5srYD57OnzSlZ/eFTETjORQHLwJG1lRtmNOJcBerZlfu4GjKqeq8aCCIQrMdHyhI51Hw=="],
 

@@ -9,8 +9,21 @@
       "dependsOn": ["^typecheck"],
       "outputs": []
     },
+    "build:wasm": {
+      "dependsOn": ["^build:wasm"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/Cargo.lock",
+        "$TURBO_ROOT$/crates/*/src/**",
+        "$TURBO_ROOT$/crates/*/Cargo.toml",
+        "$TURBO_ROOT$/crates/*/build.rs",
+        "$TURBO_ROOT$/local/*/src/**",
+        "$TURBO_ROOT$/local/*/Cargo.toml"
+      ],
+      "outputs": ["ts-gen/**"]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^build:wasm"],
       "outputs": ["dist/**", "bin/**", "!bin/**/*.js"]
     },
     "test": {

@@ -9,8 +9,16 @@ rust-version.workspace = true
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "build-wasm"
+path = "bin/build-wasm.rs"
+required-features = ["build-support"]
+
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false
+
+[features]
+build-support = ["dep:wasm-build-support", "dep:anyhow"]
 
 [dependencies]
 quizfold-parser = { workspace = true, features = ["tsify"] }
@@ -18,3 +26,8 @@ serde.workspace = true
 serde-wasm-bindgen = "0.6"
 tsify-next.workspace = true
 wasm-bindgen = "0.2"
+wasm-build-support = { path = "../../local/wasm-build-support", optional = true }
+anyhow = { workspace = true, optional = true }
+
+[build-dependencies]
+quizfold-parser = { workspace = true }

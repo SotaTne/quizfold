@@ -1,23 +1,23 @@
 import {
-  formatQuizFold as formatQuizFoldWasm,
+  printQuizFold as printQuizFoldWasm,
   initSync,
   parseQuizFold as parseQuizFoldWasm,
   validateQuizFold as validateQuizFoldWasm,
-} from "./wasm/browser/parser.js";
-import parserWasm from "./wasm/browser/parser_bg.wasm?module";
+} from "@quizfold/parser-wasm/browser";
+import parserWasm from "@quizfold/parser-wasm/browser/parser_bg.wasm?module";
 
 import type {
   Diagnostic,
   ParseResult,
   QuizFoldDocument,
-} from "./wasm/browser/parser.js";
+} from "@quizfold/parser-wasm/browser";
 
 export type {
   Diagnostic,
   ErrorCode,
   ParseResult,
   QuizFoldDocument,
-} from "./wasm/browser/parser.js";
+} from "@quizfold/parser-wasm/browser";
 
 initSync({ module: parserWasm });
 
@@ -29,8 +29,8 @@ export async function validateQuizFold(input: string): Promise<Diagnostic[]> {
   return validateQuizFoldWasm(input);
 }
 
-export async function formatQuizFold(
+export async function printQuizFold(
   document: QuizFoldDocument,
 ): Promise<string> {
-  return formatQuizFoldWasm(document);
+  return printQuizFoldWasm(document);
 }

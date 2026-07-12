@@ -3,12 +3,13 @@
   "private": true,
   "packageManager": "bun@1.3.14",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "crates/*"
   ],
   "scripts": {
     "build": "turbo build",
     "build:cli": "cargo xtask build cli all",
-    "build:parser-wasm": "cargo xtask build wasm",
+    "build:parser-wasm": "bun run --filter @quizfold/parser-wasm build:wasm",
     "check": "turbo check",
     "typecheck": "turbo typecheck",
     "test": "turbo test"

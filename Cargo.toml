@@ -4,6 +4,7 @@ members = [
   "crates/parser",
   "crates/parser-wasm",
   "crates/cli",
+  "local/wasm-build-support",
   "xtask",
 ]
 

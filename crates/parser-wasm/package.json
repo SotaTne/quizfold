@@ -1,0 +1,35 @@
+{
+  "name": "@quizfold/parser-wasm",
+  "version": "0.1.0",
+  "description": "Low-level wasm bindings for the QuizFold parser (internal dependency of @quizfold/parser)",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quizfold/quizfold.git",
+    "directory": "crates/parser-wasm"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": ["ts-gen"],
+  "scripts": {
+    "build:wasm": "cargo run -p quizfold-parser-wasm --bin build-wasm --features build-support"
+  },
+  "exports": {
+    "./browser": {
+      "types": "./ts-gen/browser/parser.d.ts",
+      "default": "./ts-gen/browser/parser.js"
+    },
+    "./browser/parser_bg.wasm": "./ts-gen/browser/parser_bg.wasm",
+    "./bundler": {
+      "types": "./ts-gen/bundler/parser.d.ts",
+      "default": "./ts-gen/bundler/parser.js"
+    },
+    "./node": {
+      "types": "./ts-gen/node/parser.d.ts",
+      "default": "./ts-gen/node/parser.js"
+    }
+  }
+}

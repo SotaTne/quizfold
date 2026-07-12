@@ -29,9 +29,9 @@
     }
   },
   "scripts": {
-    "build:wasm": "cargo xtask build wasm",
-    "build:entries": "bun build src/index.ts src/index.browser.ts src/index.worker.ts src/index.node.ts --target bun --external ./wasm/* --outdir dist",
-    "build": "bun run build:wasm && bun run build:entries",
+    "build:entries": "bun build src/index.ts src/index.browser.ts src/index.worker.ts src/index.node.ts --target bun --external \"@quizfold/parser-wasm/*\" --outdir dist",
+    "build:types": "bunx tsc --project tsconfig.bundler.json --declaration --emitDeclarationOnly --outDir dist --rootDir src",
+    "build": "bun run build:entries && bun run build:types",
     "typecheck:only": "bunx tsc --build tsconfig.json --noEmit",
     "typecheck": "bun run build && bun run typecheck:only",
     "pack:dry-run": "npm pack --dry-run",
@@ -40,6 +40,9 @@
     "test:browser": "bun run build && bun run setup-chromium && vitest run --project browser",
     "test:node": "bun run build && vitest run --project node",
     "test:worker": "bun run build && vitest run --project worker"
+  },
+  "dependencies": {
+    "@quizfold/parser-wasm": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.16.14",

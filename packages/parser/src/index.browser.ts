@@ -1,21 +1,21 @@
 import initWasm, {
-  formatQuizFold as formatQuizFoldWasm,
+  printQuizFold as printQuizFoldWasm,
   parseQuizFold as parseQuizFoldWasm,
   validateQuizFold as validateQuizFoldWasm,
-} from "./wasm/browser/parser.js";
+} from "@quizfold/parser-wasm/browser";
 
 import type {
   Diagnostic,
   ParseResult,
   QuizFoldDocument,
-} from "./wasm/browser/parser.js";
+} from "@quizfold/parser-wasm/browser";
 
 export type {
   Diagnostic,
   ErrorCode,
   ParseResult,
   QuizFoldDocument,
-} from "./wasm/browser/parser.js";
+} from "@quizfold/parser-wasm/browser";
 
 let initialization: Promise<unknown> | undefined;
 
@@ -38,9 +38,9 @@ export async function validateQuizFold(input: string): Promise<Diagnostic[]> {
   return validateQuizFoldWasm(input);
 }
 
-export async function formatQuizFold(
+export async function printQuizFold(
   document: QuizFoldDocument,
 ): Promise<string> {
   await initialize();
-  return formatQuizFoldWasm(document);
+  return printQuizFoldWasm(document);
 }

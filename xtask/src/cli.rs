@@ -27,7 +27,6 @@ enum Command {
 
 #[derive(Debug, Subcommand)]
 pub(crate) enum BuildCommand {
-    Wasm,
     Cli {
         #[arg(
             value_enum,
