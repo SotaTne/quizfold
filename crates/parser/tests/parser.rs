@@ -77,6 +77,38 @@ fn parses_multiple_fold_blanks_in_one_item_in_order() {
     assert_eq!(fold_blank_raw_text(blanks[1]), "Paris");
 }
 
+#[test]
+fn reports_fold_blank_in_qa_question_as_error() {
+    let result = parse_quizfold("? What is ${this}?\n---\nAn answer\n");
+
+    assert_diagnostic(&result, ParseError::FoldBlankOutsideAnswer, "QF012", 10, 17);
+}
+
+#[test]
+fn reports_fold_blank_in_top_level_paragraph_as_error() {
+    let result = parse_quizfold("Remember ${this}.\n");
+
+    assert_diagnostic(&result, ParseError::FoldBlankOutsideAnswer, "QF012", 9, 16);
+}
+
+#[test]
+fn reports_unclosed_blank_syntax_before_its_location() {
+    let result = parse_quizfold("Remember ${this.\n");
+
+    assert_diagnostic(&result, ParseError::UnclosedFoldBlank, "QF003", 9, 16);
+    assert!(!result
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.error == ParseError::FoldBlankOutsideAnswer));
+}
+
+#[test]
+fn allows_fold_blank_in_qa_answer() {
+    let result = parse_quizfold("? Complete this\n---\nThe answer is ${this}.\n");
+
+    assert!(result.diagnostics.is_empty());
+}
+
 fn fold_blank_raw_text(blank: &quizfold_parser::ast::FoldBlank) -> &str {
     match &blank.answer.inlines[0].kind {
         FoldBlankInlineKind::Raw(raw) => raw.value.as_ref(),
@@ -315,6 +347,37 @@ fn treats_quiz_syntax_inside_memo_as_text() {
     assert!(text.contains("? This is not a question quiz."));
     assert!(text.contains("! This is not a fold quiz."));
     assert!(text.contains("---"));
+}
+
+#[test]
+fn treats_fold_blank_syntax_inside_memo_as_raw_text() {
+    let source = "@memo\nRemember ${this} literally.\n@end\n";
+    let result = parse_quizfold(source);
+
+    assert!(result.diagnostics.is_empty());
+    let DocumentItemKind::Block(block) = &result.document.items[0].kind else {
+        panic!("expected block");
+    };
+    let BlockKind::Memo(memo) = &block.kind else {
+        panic!("expected memo block");
+    };
+    let BlockKind::Paragraph(paragraph) = &memo.blocks[0].kind else {
+        panic!("expected paragraph");
+    };
+
+    assert!(paragraph
+        .inlines
+        .iter()
+        .all(|inline| !matches!(inline.kind, InlineKind::FoldBlank(_))));
+    let text = paragraph
+        .inlines
+        .iter()
+        .filter_map(|inline| match &inline.kind {
+            InlineKind::Raw(raw) => Some(raw.value.as_ref()),
+            _ => None,
+        })
+        .collect::<String>();
+    assert_eq!(text, "Remember ${this} literally.");
 }
 #[test]
 fn reports_unclosed_memo_as_error() {

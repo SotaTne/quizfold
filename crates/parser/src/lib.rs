@@ -5,6 +5,7 @@ mod constants;
 pub mod diagnostics;
 pub mod errors;
 pub mod lexer;
+pub mod model;
 mod parse;
 pub mod printer;
 pub mod source;

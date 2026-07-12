@@ -1,6 +1,6 @@
 // Inline-level QuizFold grammar.
 // This file parses raw text, inline math, fold blanks, and image references.
-use super::Parser;
+use super::{ContentContext, Parser};
 use crate::ast::{
     AttachmentKey, Block, BlockKind, ExternalImageUrl, FoldBlank, FoldBlankContent,
     FoldBlankInline, FoldBlankInlineKind, Image, ImageReference, Inline, InlineKind, MathInline,
@@ -19,26 +19,34 @@ impl Parser<'_> {
         token_end: usize,
         range: SourceRange,
     ) -> QuizContent {
-        let paragraph = Paragraph::new(self.parse_inlines_range(token_start, token_end), range);
+        let paragraph = Paragraph::new(
+            self.parse_inlines_range(token_start, token_end, ContentContext::Fold),
+            range,
+        );
         QuizContent::new(
             vec![Block::new(BlockKind::Paragraph(paragraph), range)],
             range,
         )
     }
 
-    pub(super) fn parse_inlines_range(&mut self, start: usize, end: usize) -> Vec<Inline> {
+    pub(super) fn parse_inlines_range(
+        &mut self,
+        start: usize,
+        end: usize,
+        context: ContentContext,
+    ) -> Vec<Inline> {
         let tokens = self.tokens[start..end].to_vec();
-        self.parse_inlines(&tokens)
+        self.parse_inlines(&tokens, context)
     }
 
     /// Inline <- Raw / SoftBreak / FoldBlank / MathInline / Image
     /// Inline* -> Vec<Inline>
-    fn parse_inlines(&mut self, tokens: &[Token]) -> Vec<Inline> {
+    fn parse_inlines(&mut self, tokens: &[Token], context: ContentContext) -> Vec<Inline> {
         let mut inlines = Vec::new();
         let mut index = 0;
 
         while let Some(token) = tokens.get(index).copied() {
-            let (inline, next) = self.parse_inline(tokens, index, token);
+            let (inline, next) = self.parse_inline(tokens, index, token, context);
             inlines.extend(inline);
             index = next;
         }
@@ -51,13 +59,31 @@ impl Parser<'_> {
         tokens: &[Token],
         index: usize,
         token: Token,
+        context: ContentContext,
     ) -> (Vec<Inline>, usize) {
         match token.kind {
             TokenKind::Newline => (
                 vec![Inline::new(InlineKind::SoftBreak, token.source_range)],
                 index + 1,
             ),
-            TokenKind::FoldBlankStart => self.parse_fold_blank(tokens, index, token),
+            TokenKind::FoldBlankStart if context == ContentContext::Memo => {
+                (vec![self.raw_inline(token)], index + 1)
+            }
+            TokenKind::FoldBlankStart => {
+                let (inlines, next) = self.parse_fold_blank(tokens, index, token);
+                if !context.allows_fold_blank()
+                    && inlines
+                        .iter()
+                        .any(|inline| matches!(inline.kind, InlineKind::FoldBlank(_)))
+                {
+                    let range = inlines
+                        .first()
+                        .map_or(token.source_range, |inline| inline.source_range);
+                    self.diagnostics
+                        .push(Diagnostic::new(ParseError::FoldBlankOutsideAnswer, range));
+                }
+                (inlines, next)
+            }
             TokenKind::MathInlineDelimiter => self.parse_math_inline(tokens, index, token),
             TokenKind::Image { alt, destination } => {
                 (vec![self.parse_image(token, alt, destination)], index + 1)

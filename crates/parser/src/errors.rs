@@ -1,22 +1,27 @@
-// Parser error taxonomy and stable public error codes.
+// Shared error-definition macro and parser error taxonomy.
 // Add new variants carefully because these codes are part of the external API.
 //
-// Variants/codes/messages are declared once via `define_parse_errors!`.
-// `ParseError::ALL_CODES` falls out of the same list, so crates/parser-wasm's
-// build.rs can generate the wasm-bindgen ErrorCode TypeScript union from it
-// instead of a hand-copied second list that can drift out of sync.
+// Variants/codes/messages are declared once via `define_errors!`. The same
+// macro is reused by model errors, and each enum exposes ALL_CODES so the WASM
+// build can generate TypeScript unions without a hand-maintained second list.
 use crate::diagnostics::Severity;
 
-macro_rules! define_parse_errors {
-    ($($variant:ident => $code:literal, $message:expr;)+) => {
+macro_rules! define_errors {
+    (
+        $(#[$meta:meta])*
+        $visibility:vis enum $name:ident {
+            $($variant:ident => $code:literal, $message:expr;)+
+        }
+    ) => {
+        $(#[$meta])*
         #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
         #[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
-        pub enum ParseError {
+        $visibility enum $name {
             $($variant),+
         }
 
-        impl ParseError {
+        impl $name {
             pub const fn code(self) -> &'static str {
                 match self {
                     $(Self::$variant => $code),+
@@ -31,11 +36,18 @@ macro_rules! define_parse_errors {
 
             /// Every error code, in declaration order.
             pub const ALL_CODES: &'static [&'static str] = &[$($code),+];
+
+            pub const fn severity(self) -> Severity {
+                Severity::Error
+            }
         }
     };
 }
 
-define_parse_errors! {
+pub(crate) use define_errors;
+
+define_errors! {
+pub enum ParseError {
     MissingAnswerSeparator => "QF001", "Q/A block requires an answer separator (`---`).";
     FoldQuizWithoutBlank => "QF002", "Fold quiz requires at least one `${...}` answer.";
     UnclosedFoldBlank => "QF003", "Fold answer is not closed with `}`.";
@@ -47,10 +59,6 @@ define_parse_errors! {
     UnexpectedMemoEnd => "QF009", "`@end` does not have a matching `@memo`.";
     NestedMemo => "QF010", "Memo blocks cannot be nested.";
     QaSectionIsMemoOnly => "QF011", "Q/A question or answer must contain content other than a memo block.";
+    FoldBlankOutsideAnswer => "QF012", "`${...}` can only appear in a fold line or a Q/A answer.";
 }
-
-impl ParseError {
-    pub const fn severity(self) -> Severity {
-        Severity::Error
-    }
 }

@@ -261,7 +261,7 @@ impl Parser<'_> {
             self.cursor.advance();
         }
 
-        self.paragraph_from_lines(first_line, token_start)
+        self.paragraph_from_lines(first_line, token_start, context)
     }
 
     fn parse_marker_line(
@@ -273,10 +273,20 @@ impl Parser<'_> {
             return Vec::new();
         }
         let range = SourceRange::new(content_start, line.content_range.end);
-        vec![self.paragraph_from_tokens(line.token_start + 1, line.token_end, range)]
+        vec![self.paragraph_from_tokens(
+            line.token_start + 1,
+            line.token_end,
+            range,
+            ContentContext::Question,
+        )]
     }
 
-    fn paragraph_from_lines(&mut self, first_line: usize, token_start: usize) -> Block {
+    fn paragraph_from_lines(
+        &mut self,
+        first_line: usize,
+        token_start: usize,
+        context: ContentContext,
+    ) -> Block {
         let last_line = self.cursor.position().saturating_sub(1);
         let line = self
             .line_at(last_line)
@@ -289,6 +299,7 @@ impl Parser<'_> {
             token_start,
             line.token_end,
             SourceRange::new(start, line.content_range.end),
+            context,
         )
     }
 
@@ -297,8 +308,12 @@ impl Parser<'_> {
         token_start: usize,
         token_end: usize,
         range: SourceRange,
+        context: ContentContext,
     ) -> Block {
-        let paragraph = Paragraph::new(self.parse_inlines_range(token_start, token_end), range);
+        let paragraph = Paragraph::new(
+            self.parse_inlines_range(token_start, token_end, context),
+            range,
+        );
         Block::new(BlockKind::Paragraph(paragraph), range)
     }
 

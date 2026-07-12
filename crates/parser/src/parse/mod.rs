@@ -21,7 +21,14 @@ enum ContentContext {
     Document,
     Question,
     Answer,
+    Fold,
     Memo,
+}
+
+impl ContentContext {
+    fn allows_fold_blank(self) -> bool {
+        matches!(self, Self::Answer | Self::Fold)
+    }
 }
 
 struct Parser<'a> {
